@@ -1,0 +1,22 @@
+.main-container {
+    max-width: 980px;
+    height: 100vh;
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: auto;
+}
+
+.main-container .header {
+    grid-row: 1; 
+}
+
+.main-container .content {
+    grid-row: 2;
+    overflow-y: auto;
+}
+
+.main-container .footer {
+    grid-row: 3; 
+}

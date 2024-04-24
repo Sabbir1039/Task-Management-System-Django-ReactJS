@@ -1,0 +1,54 @@
+.task-card {
+    background-color: #f9f9f9;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .task-card p {
+    margin: 0;
+  }
+  
+.title {
+  font-weight: 600;
+  font-size: 21px;
+}
+
+.description,
+.duedate {
+  font-size: 18px;
+}
+
+.task-left {
+  margin-right: 20px;
+}
+
+.task-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.button {
+  width: 100px;
+  margin-top: 8px;
+}
+
+.status {
+  font-weight: 600;
+}
+
+.status #comp {
+  color: green;
+  font-weight: 100;
+}
+
+.status #pen {
+  color: orangered;
+  font-weight: 100;
+}
