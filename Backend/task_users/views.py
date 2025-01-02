@@ -2,7 +2,7 @@ from task_users.serializers import CustomUserSerializer, MyTokenObtainPairSerial
 from task_users.models import CustomUser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
-from rest_framework import generics
+from rest_framework import generics, mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
@@ -220,10 +220,18 @@ class UserCreateView(generics.CreateAPIView):
         },
     )
 )
-class CustomUserRetriveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class CustomUserRetriveUpdateDestroyApiView(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+    ):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
+    
+    def get_queryset(self):
+        return CustomUser.objects.filter(id=self.request.user.id)
 
     
