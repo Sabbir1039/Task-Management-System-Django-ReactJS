@@ -107,8 +107,15 @@ class UserCreateView(generics.CreateAPIView):
 
 
 
-@extend_schema_view(
-    get=extend_schema(
+class CustomUserRetriveUpdateDestroyApiView(viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    serializer_class = CustomUserSerializer
+    
+    def get_queryset(self):
+        return CustomUser.objects.filter(id=self.request.user.id)
+
+    @extend_schema(
         summary="Retrieve User Details",
         description="Fetch details of the currently authenticated user.",
         responses={
@@ -132,8 +139,14 @@ class UserCreateView(generics.CreateAPIView):
                 description="Authentication credentials were not provided or are invalid."
             ),
         },
-    ),
-    put=extend_schema(
+    )
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
+    @extend_schema(
         summary="Update User Details",
         description="Update the details of the currently authenticated user.",
         request=CustomUserSerializer,
@@ -169,45 +182,17 @@ class UserCreateView(generics.CreateAPIView):
                 description="Authentication credentials were not provided or are invalid."
             ),
         },
-    ),
-    patch=extend_schema(
-        summary="Partially Update User Details",
-        description="Partially update the details of the currently authenticated user. Only send the fields you wish to update.",
-        request=CustomUserSerializer,
-        responses={
-            200: OpenApiResponse(
-                description="Successfully updated user details",
-                examples=[
-                    OpenApiExample(
-                        name="Partial Update",
-                        value={
-                            "id": 1,
-                            "username": "john_doe",
-                            "email": "john@example.com",
-                            "birth_date" : "2000-12-31",
-                            "address" : "NY",
-                            "image" : "http://....."
-                        }
-                    )
-                ]
-            ),
-            400: OpenApiResponse(
-                description="Validation error or invalid input",
-                examples=[
-                    OpenApiExample(
-                        name="Validation Error",
-                        value={
-                            "email": ["Enter a valid email address."]
-                        }
-                    )
-                ]
-            ),
-            401: OpenApiResponse(
-                description="Authentication credentials were not provided or are invalid."
-            ),
-        },
-    ),
-    delete=extend_schema(
+    )
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+    @extend_schema(
         summary="Delete User Account",
         description="Delete the account of the currently authenticated user.",
         responses={
@@ -219,19 +204,7 @@ class UserCreateView(generics.CreateAPIView):
             ),
         },
     )
-)
-class CustomUserRetriveUpdateDestroyApiView(
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-    ):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
-    
-    def get_queryset(self):
-        return CustomUser.objects.filter(id=self.request.user.id)
-
-    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
